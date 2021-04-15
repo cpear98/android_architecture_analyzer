@@ -1,7 +1,20 @@
 from entities import Component, Connector, Interface, Link, Document
 from parser import ManifestParser
 import argparse
+import logging
 
+
+# Simple terminal formatted text values
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 if __name__ == "__main__":
     # setup the argument parser
@@ -28,11 +41,20 @@ if __name__ == "__main__":
     # check if we should run in debug mode
     DEBUG = args.debug
 
+    # instantiate a logger to be used throughout the application
+    if DEBUG:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+
     # now init the parser to analyze the manifest
-    parser = ManifestParser(debug=DEBUG)
+    parser = ManifestParser()
 
     # parse the manifest
     doc = parser.parse(manifest, structure)
 
     # write the resulting architecture to an xml file
-    doc.write_current_contents()
+    file_name = doc.write_current_contents()
+
+    # we wrote to the file without error so notify the user
+    print(f"{bcolors.OKGREEN}SUCCESS!{bcolors.ENDC} Output written to {bcolors.UNDERLINE}{file_name}{bcolors.ENDC}")

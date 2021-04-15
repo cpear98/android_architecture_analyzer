@@ -1,10 +1,13 @@
 from entities import Component, Connector, Interface, Link, Document
 import xml.etree.ElementTree as ET
+import logging
 
+
+ANDROID_SCHEMA = "{http://schemas.android.com/apk/res/android}"
 
 class ManifestParser:
-    def __init__(self, debug=False):
-        self.DEBUG = debug
+    def __init__(self, use_fully_qualified_names=False):
+        self.use_fully_qualified_names = use_fully_qualified_names
 
     def read_file(self, manifest_file):
         try:
@@ -16,6 +19,9 @@ class ManifestParser:
 
     def get_element_tree(self, content):
         return ET.fromstring(content)
+
+    def get_package_name(self, tree):
+        return tree.get("package")
 
     def get_tags_from_app(self, tree, tag):
         return tree.find("application").findall(tag)
@@ -42,11 +48,15 @@ class ManifestParser:
         # check if we successfully read any content
         if content is None:
             # uh oh
-            print(f"ERROR: Could not read content of \"{manifest_file}\"")
+            self.logger.critical(f"Could not read content of \"{manifest_file}\"")
             exit()
 
         # now parse the string to a tree
         tree = self.get_element_tree(content)
+
+        package_name = self.get_package_name(tree)
+        
+        logging.debug(f"Package name: {package_name}")
 
         # get Android app components
         activities = self.get_activities(tree)
@@ -54,10 +64,38 @@ class ManifestParser:
         receivers = self.get_receivers(tree)
         providers = self.get_providers(tree)
 
-        if self.DEBUG:
-            print(f"Activities: {activities}")
-            print(f"Services: {services}")
-            print(f"Receivers: {receivers}")
-            print(f"Providers: {providers}")
+        logging.debug(f"Activities: {activities}")
+        logging.debug(f"Services: {services}")
+        logging.debug(f"Receivers: {receivers}")
+        logging.debug(f"Providers: {providers}")
 
-        return Document(architecture_name + ".xml", architecture_name)
+        # create a document
+        doc = Document(architecture_name + ".xml", architecture_name)
+
+        # now create entities for components in the manifest
+        # iterate over each list separately because it doesn't take any longer and we may want to handle each
+        # differently in the future
+
+        for activity in activities:
+            name = activity.get(f"{ANDROID_SCHEMA}name")
+
+            if name is None:
+                logging.critical(f"Activity {activity} missing name (Attributes: {activity.attrib})")
+                exit()
+
+            if not self.use_fully_qualified_names and name.startswith(package_name + "."):
+                name = name.replace(package_name + ".", "")
+            
+            component = Component(name=name)
+            doc.add_component(component)
+
+        for service in services:
+            pass
+
+        for receiver in receivers:
+            pass
+
+        for provider in providers:
+            pass
+
+        return doc
