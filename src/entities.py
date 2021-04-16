@@ -245,6 +245,7 @@ class Document:
             self._bus = bus 
             self.entities.add(bus)
             self.connectors.add(bus)
+        return self._bus
 
     def remove_bus(self):
         bus = self._bus 
@@ -258,6 +259,17 @@ class Document:
     def add_component(self, component):
         self.components.add(component)
         self.entities.add(component)
+
+    def add_connector(self, connector):
+        self.connectors.add(connector)
+        self.entities.add(connector)
+
+    def get_component_from_simple_name(self, simple_name):
+        for component in self.components:
+            name = component.get_name()
+            if name.split(".")[-1] == simple_name:
+                return component
+        return None
 
     def add_link(self, start, end):
         # verify the start point
@@ -301,6 +313,10 @@ class Document:
         else:
             # TODO: get link using start and end points then remove it
             pass
+
+    def get_link(self, sender, receiver):
+        # TODO: method stub
+        return None
 
     def to_xml(self):
         # xadlcore is the root tag of the document

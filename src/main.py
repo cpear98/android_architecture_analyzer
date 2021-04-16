@@ -28,6 +28,7 @@ if __name__ == "__main__":
     arg_parser.add_argument('--debug', dest='debug', action='store_const',
                     const=True, default=False,
                     help='Run the program in debug mode')
+    arg_parser.add_argument('--src', dest='src_dir', type=str, help='Path to the source code corresponding to the provided manifest file')
 
     # now parse the args
     args = arg_parser.parse_args()
@@ -41,6 +42,9 @@ if __name__ == "__main__":
     # check if we should run in debug mode
     DEBUG = args.debug
 
+    # check if the user provided a path to source code
+    src_dir = args.src_dir
+
     # instantiate a logger to be used throughout the application
     if DEBUG:
         logging.basicConfig(level=logging.DEBUG)
@@ -51,7 +55,7 @@ if __name__ == "__main__":
     parser = ManifestParser()
 
     # parse the manifest
-    doc = parser.parse(manifest, structure)
+    doc = parser.parse(manifest, structure, src_dir=src_dir)
 
     # write the resulting architecture to an xml file
     file_name = doc.write_current_contents()
