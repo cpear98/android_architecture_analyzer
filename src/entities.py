@@ -15,8 +15,15 @@ class Structure:
     """
     Represents a <structure /> tag in an ArchStudio xml document
     """
-    def __init__(self):
-        pass
+    def __init__(self, name, id):
+        self._name = name
+        self._id = id
+
+    def get_name(self):
+        return self._name
+
+    def get_id(self):
+        return self._id
 
     def to_xml(self):
         raise NotImplementedError("Child classes of Structure must override to_xml")
@@ -26,14 +33,55 @@ class Component(Structure):
     Represents a component as a first class entity
     """
     def __init__(self, name="[New Component]"):
-        self._name = name
-        self._id = str(get_uuid())
+        super().__init__(name, str(get_uuid()))
+        self._interfaces = set()
+
+    def add_interface(self, interface):
+        self._interfaces.add(interface)
+
+    def remove_interface(self, interface):
+        self._interfaces.remove(interface)
+
+    def get_interface_in(self):
+        # find the first interface with direction "in"
+        for interface in self._interfaces:
+            if interface.get_direction() == Interface.DIRECTION_IN:
+                return interface
+        return None
+
+    def get_interface_out(self):
+        # find the first interface with direction "out"
+        for interface in self._interfaces:
+            if interface.get_direction() == Interface.DIRECTION_OUT:
+                return interface
+        return None
+
+    def add_interface_out(self, interface):
+        # we don't actually care about the interface direction here, this method is provided
+        # so both Component and Connector have a standard interface for adding Interfaces
+        if interface.get_direction() == Interface.DIRECTION_OUT:
+            self._interfaces.add(interface)
+        else:
+            direction = Interface.direction_strings[interface.get_direction()]
+            logging.critical(f"Attempted to add an interface with direction {direction} via Component.add_interface_in(self, interface)")
+            exit()
+
+    def add_interface_in(self, interface):
+        # see comment in add_interface_out
+        if interface.get_direction() == Interface.DIRECTION_IN:
+            self._interfaces.add(interface)
+        else:
+            direction = Interface.direction_strings[interface.get_direction()]
+            logging.critical(f"Attempted to add an interface with direction {direction} via Component.add_interface_out(self, interface)")
+            exit()
 
     def to_xml(self):
         # TODO: method stub
         el = Element("structure_3_0:component")
         el.set("structure_3_0:id", self._id)
         el.set("structure_3_0:name", self._name)
+        for interface in self._interfaces:
+            el.append(interface.to_xml())
         return el
 
 class Connector(Structure):
@@ -43,14 +91,34 @@ class Connector(Structure):
     interfaces, and links to other components.
     """
     def __init__(self, name="[New Connector]"):
-        self._name = name
-        self._id = str(get_uuid()) 
+        super().__init__(name, str(get_uuid()))
+
+        # all connectors should have one incoming interface and one outgoing interface
+        self._interface_in = Interface(name=self._name + " Interface In", direction=Interface.DIRECTION_IN)
+        self._interface_out = Interface(name=self._name + " Interface Out", direction=Interface.DIRECTION_OUT)
+
+    def get_interface_in(self):
+        return self._interface_in
+
+    def get_interface_out(self):
+        return self._interface_out
+
+    def add_interface_out(self, interface):
+        # really we "set" the interface rather than add it, but we want a standard interface
+        # for adding Interfaces that can be used with either Components or Connectors
+        self._interface_out = interface
+
+    def add_interface_in(self, interface):
+        # see comment in add_interface_out
+        self._interface_in = interface
 
     def to_xml(self):
         # TODO: method stub
         el = Element("structure_3_0:connector")
         el.set("structure_3_0:id", self._id)
         el.set("structure_3_0:name", self._name)
+        el.append(self._interface_in.to_xml())
+        el.append(self._interface_out.to_xml())
         return el
 
 class Interface(Structure):
@@ -58,30 +126,102 @@ class Interface(Structure):
     Represents a directional interface in ArchStudio. Interfaces can be attached to components or connectors
     and allow links to connect a component/connector to another component/connector
     """
-    def __init__(self, name="[New Interface]"):
-        self._name = name
-        self._id = str(get_uuid()) 
+
+    DIRECTION_NONE      = 0
+    DIRECTION_IN        = 1
+    DIRECTION_OUT       = 2
+    DIRECTION_IN_OUT    = 3
+
+    # set of valid directions for checking membership
+    VALID_DIRECTIONS = {
+        DIRECTION_NONE,
+        DIRECTION_IN,
+        DIRECTION_OUT,
+        DIRECTION_IN_OUT
+    }
+
+    # map of direction strings for converting to xml
+    direction_strings = {
+        DIRECTION_NONE: "",
+        DIRECTION_IN: "in",
+        DIRECTION_OUT: "out",
+        DIRECTION_IN_OUT: "in-out"
+    }
+
+    def __init__(self, name="[New Interface]", direction=DIRECTION_NONE):
+        super().__init__(name, str(get_uuid()))
+        self._direction = direction
+
+    def set_direction(self, direction):
+        if direction in Interface.VALID_DIRECTIONS:
+            self._direction = direction
+        else:
+            logging.critical(f"Invalid direction for interface: {direction}")
+            exit()
+
+    def get_direction(self):
+        return self._direction
 
     def to_xml(self):
         # TODO: method stub
         el = Element("structure_3_0:interface")
         el.set("structure_3_0:id", self._id)
         el.set("structure_3_0:name", self._name)
+
+        direction_string = Interface.direction_strings[self._direction]
+        if len(direction_string) > 0:
+            el.set("structure_3_0:direction", direction_string)
+
         return el
 
 class Link(Structure):
     """
     Represents a link between two interfaces in ArchStudio
     """
-    def __init__(self, name="[New Link]"):
-        self._name = name
-        self._id = str(get_uuid()) 
+    def __init__(self, name="[New Link]", start=None, end=None):
+        super().__init__(name, str(get_uuid()))
+
+        # start point should be an interface with direction "out"
+        self._start = start
+
+        # end point should be an interface with direction "in"
+        self._end = end
+
+    def set_start(self, start):
+        if type(start) is Interface:
+            self._start = start
+        elif type(start) in (Connector, Component):
+            self._start = start.get_interface_in()
+        else:
+            logging.critical(f"Invalid start point type {type(start)}")
+            exit()
+
+    def set_end(self, end):
+        if type(end) is Interface:
+            self._end = end
+        elif type(end) in (Connector, Component):
+            self._end = start.get_interface_out()
+        else:
+            logging.critical(f"Invalid end point type {type(end)}")
+            exit()
 
     def to_xml(self):
         # TODO: method stub
         el = Element("structure_3_0:link")
         el.set("structure_3_0:id", self._id)
         el.set("structure_3_0:name", self._name)
+
+        # Need start and end components
+        if self._start is None or self._end is None:
+            logging.critical(f"Link {self._name} ({self._id}) missing start and/or end points")
+            exit()
+
+        point1 = SubElement(el, "structure_3_0:point1")
+        point2 = SubElement(el, "structure_3_0:point2")
+
+        point1.text = self._start.get_id()
+        point2.text = self._end.get_id()
+
         return el
 
 class Document:
@@ -94,10 +234,73 @@ class Document:
         self.main_structure_name = structure_name
         self.entities = set()
         self.components = set()
+        self.connectors = set()
+        self.links = set()
+        self._bus = None
+
+    def add_bus(self):
+        # don't add a new bus if we already have one
+        if self._bus is None:
+            bus = Connector(name="Implicit Message Bus")
+            self._bus = bus 
+            self.entities.add(bus)
+            self.connectors.add(bus)
+
+    def remove_bus(self):
+        bus = self._bus 
+        self.entities.remove(bus)
+        self.connectors.remove(bus)
+        self._bus = None
+
+    def get_bus(self):
+        return self._bus
 
     def add_component(self, component):
         self.components.add(component)
         self.entities.add(component)
+
+    def add_link(self, start, end):
+        # verify the start point
+        interface_out = None
+        if type(start) is Interface and start.get_direction() == Interface.DIRECTION_OUT:
+            interface_out = start
+        elif type(start) in (Component, Connector):
+            interface_out = start.get_interface_out()
+
+            # now make sure interface_out is not None and create a new interface if it is
+            if interface_out is None:
+                interface_out = Interface(direction=Interface.DIRECTION_OUT)
+                start.add_interface_out(interface_out)
+        else:
+            logging.critical(f"Invalid type for start point {type(start)}")
+            exit()
+
+        # verify the end point
+        interface_in = None
+        if type(end) is Interface and end.get_direction() == Interface.DIRECTION_IN:
+            interface_in = end
+        elif type(end) in (Component, Connector):
+            interface_in = end.get_interface_in()
+
+            # now make sure interface_out is not None and create a new interface if it is
+            if interface_in is None:
+                interface_in = Interface(direction=Interface.DIRECTION_IN)
+                end.add_interface_in(interface_in)
+        else:
+            logging.critical(f"Invalid type for end point {type(end)}")
+            exit()
+
+        link = Link(start=interface_out, end=interface_in)
+        self.entities.add(link)
+        self.links.add(link)
+
+    def remove_link(self, link=None, start=None, end=None):
+        if link is not None:
+            self.entities.remove(link)
+            self.links.remove(link)
+        else:
+            # TODO: get link using start and end points then remove it
+            pass
 
     def to_xml(self):
         # xadlcore is the root tag of the document

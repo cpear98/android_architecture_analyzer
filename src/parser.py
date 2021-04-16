@@ -41,6 +41,9 @@ class ManifestParser:
         # TODO: method stub
         return self.get_tags_from_app(tree, "provider")
 
+    def get_intent_filters(self, element):
+        return element.findall("intent-filter")
+
     def parse(self, manifest_file, architecture_name):
         # first open and read the file
         content = self.read_file(manifest_file)
@@ -88,6 +91,21 @@ class ManifestParser:
             
             component = Component(name=name)
             doc.add_component(component)
+
+            filters = self.get_intent_filters(activity)
+
+            if filters is not None and len(filters) > 0:
+                # we can receive implicit intents from the android system, so make sure the doc contains
+                # a message bus and connect us to it
+                bus = doc.get_bus()
+                if bus is None:
+                    doc.add_bus()
+                    bus = doc.get_bus()
+
+                # create a new in-bound interface for the component
+                interface_in = Interface(direction=Interface.DIRECTION_IN)
+                component.add_interface_in(interface_in)
+                doc.add_link(bus, interface_in)
 
         for service in services:
             pass
