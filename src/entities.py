@@ -38,6 +38,7 @@ class Component(Structure):
 
     def add_interface(self, interface):
         self._interfaces.add(interface)
+        interface.set_parent(self)
 
     def remove_interface(self, interface):
         self._interfaces.remove(interface)
@@ -61,6 +62,7 @@ class Component(Structure):
         # so both Component and Connector have a standard interface for adding Interfaces
         if interface.get_direction() == Interface.DIRECTION_OUT:
             self._interfaces.add(interface)
+            interface.set_parent(self)
         else:
             direction = Interface.direction_strings[interface.get_direction()]
             logging.critical(f"Attempted to add an interface with direction {direction} via Component.add_interface_in(self, interface)")
@@ -70,6 +72,7 @@ class Component(Structure):
         # see comment in add_interface_out
         if interface.get_direction() == Interface.DIRECTION_IN:
             self._interfaces.add(interface)
+            interface.set_parent(self)
         else:
             direction = Interface.direction_strings[interface.get_direction()]
             logging.critical(f"Attempted to add an interface with direction {direction} via Component.add_interface_out(self, interface)")
@@ -107,10 +110,12 @@ class Connector(Structure):
         # really we "set" the interface rather than add it, but we want a standard interface
         # for adding Interfaces that can be used with either Components or Connectors
         self._interface_out = interface
+        self._interface_out.set_parent(self)
 
     def add_interface_in(self, interface):
         # see comment in add_interface_out
         self._interface_in = interface
+        self._interface_in.set_parent(self)
 
     def to_xml(self):
         # TODO: method stub
@@ -148,9 +153,10 @@ class Interface(Structure):
         DIRECTION_IN_OUT: "in-out"
     }
 
-    def __init__(self, name="[New Interface]", direction=DIRECTION_NONE):
+    def __init__(self, name="[New Interface]", direction=DIRECTION_NONE, parent=None):
         super().__init__(name, str(get_uuid()))
         self._direction = direction
+        self._parent = parent
 
     def set_direction(self, direction):
         if direction in Interface.VALID_DIRECTIONS:
@@ -161,6 +167,12 @@ class Interface(Structure):
 
     def get_direction(self):
         return self._direction
+
+    def set_parent(self, parent):
+        self._parent = parent
+
+    def get_parent(self):
+        return self._parent
 
     def to_xml(self):
         # TODO: method stub
@@ -204,6 +216,18 @@ class Link(Structure):
         else:
             logging.critical(f"Invalid end point type {type(end)}")
             exit()
+
+    def get_start(self):
+        return self._start
+
+    def get_end(self):
+        return self._end
+
+    def get_start_component(self):
+        return self._start.get_parent() 
+
+    def get_end_component(self):
+        return self._end.get_parent()
 
     def to_xml(self):
         # TODO: method stub
@@ -315,7 +339,27 @@ class Document:
             pass
 
     def get_link(self, sender, receiver):
-        # TODO: method stub
+        for link in self.links:
+            match = True
+            # check if sender is the same
+            if type(sender) is Interface:
+                match = match and sender == link.get_start()
+            elif type(sender) in (Component, Connector):
+                match = match and sender == link.get_start_component()
+            else:
+                match = False
+
+            # check if receiver is the same
+            if type(receiver) is Interface:
+                match = match and receiver == link.get_end()
+            elif type(receiver) in (Component, Connector):
+                match = match and receiver == link.get_end_component()
+            else:
+                match = False
+
+            if match:
+                return link
+                
         return None
 
     def to_xml(self):

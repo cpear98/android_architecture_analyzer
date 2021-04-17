@@ -1,5 +1,5 @@
 from entities import Component, Connector, Interface, Link, Document
-from parser import ManifestParser
+from manifest_parser import ManifestParser
 import argparse
 import logging
 

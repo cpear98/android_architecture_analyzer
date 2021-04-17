@@ -97,6 +97,7 @@ class ManifestParser:
             # TODO: currently does not match intents like:
             # new Intent (...);
             # new Intent(this, someFunc());
+            # new Intent();
 
             regex = "new Intent\\([^\\)]*\\)" #(\\.[^\\)]*\\))?"
             occurences = re.findall(regex, src_string)
