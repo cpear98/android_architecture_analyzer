@@ -386,7 +386,7 @@ class Document:
 
     def write_current_contents(self):
         project_root = os.path.dirname(os.path.realpath(__file__ + "/.."))
-        output_dir = project_root + "/output/" + self.main_structure_name
+        output_dir = project_root + "/output/"
 
         logging.debug(f"Checking if output directory {output_dir} exists")
 
