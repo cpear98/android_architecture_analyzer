@@ -212,7 +212,7 @@ class Link(Structure):
         if type(end) is Interface:
             self._end = end
         elif type(end) in (Connector, Component):
-            self._end = start.get_interface_out()
+            self._end = self._start.get_interface_out()
         else:
             logging.critical(f"Invalid end point type {type(end)}")
             exit()
