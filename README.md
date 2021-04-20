@@ -93,7 +93,7 @@ To analyze an Android application's software architecture using the application'
 4. Run the Android Architecture Analyzer where `path/to/AndroidManifest.xml` is replaced with the path to the manifest file for the application that should be analyzed and `name-of-arch` is replaced with the name of the desired architecture.
     * `python3 main.py path/to/AndroidManifest.xml name-of-arch`
 
-#### Analyze an Android Application's Architecture using the Source Code
+#### Analyze an Android Application's Architecture using Source Code
 To analyze an Android application's software architecture using the application's source code, follow the instructions below:
 1. Open a new terminal
 2. Overlay the Anaconda environment
