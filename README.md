@@ -74,8 +74,7 @@ Upon completing installation of the Android Architecture Analyzer tool, the proj
 │   │   ├── main.py
 │   │   └── manifest_parser.py
 │   ├── .gitignore
-│   ├── README.md
-└── └── environment.yml
+└── └── README.md
 ```
 
 ***
@@ -109,8 +108,7 @@ Upon completing installation of the Android Architecture Analyzer tool, the proj
 │   │   ├── main.py
 │   │   └── manifest_parser.py
 │   ├── .gitignore
-│   ├── README.md
-└── └── environment.yml
+└── └── README.md
 ```
 
 ***

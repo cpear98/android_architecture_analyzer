@@ -21,8 +21,8 @@ if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser(description='Extract the architecture from an android application.')
 
     # positional arguments
-    arg_parser.add_argument('manifest', metavar='file1', type=str, help='Path to the manifest file to analyze')
-    arg_parser.add_argument('structure', metavar='structure', type=str, help='Name of the base structure for the extracted architecture')
+    arg_parser.add_argument('manifest', metavar='manifest_file', type=str, help='Path to the manifest file to analyze')
+    arg_parser.add_argument('structure', metavar='structure_name', type=str, help='Name of the output base structure for the extracted architecture')
 
     # optional arguments
     arg_parser.add_argument('--debug', dest='debug', action='store_const',
