@@ -1,4 +1,4 @@
-from .entities import Component, Connector, Interface, Link, Document
+from entities import Component, Connector, Interface, Link, Document
 import xml.etree.ElementTree as ET
 import logging
 import re

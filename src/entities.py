@@ -373,7 +373,7 @@ class Document:
         elif type(start) is Connector:
             self._connectors.add(start)
             self._entities.add(start) 
-        else:
+        elif type(start) is not Interface:
             logging.critical(f"Invalid type for the start point {type(start)}")
             exit()
 
@@ -384,7 +384,7 @@ class Document:
         elif type(end) is Connector:
             self._connectors.add(end)
             self._entities.add(end) 
-        else:
+        elif type(end) is not Interface:
             logging.critical(f"Invalid type for the end point {type(end)}")
             exit()
         
