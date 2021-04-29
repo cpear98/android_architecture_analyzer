@@ -11,6 +11,7 @@ def get_uuid():
     """
     return uuid.uuid4()
 
+
 class Structure:
     """
     Represents a <structure /> tag in an ArchStudio xml document
@@ -27,6 +28,7 @@ class Structure:
 
     def to_xml(self):
         raise NotImplementedError("Child classes of Structure must override to_xml")
+
 
 class Component(Structure):
     """
@@ -87,6 +89,7 @@ class Component(Structure):
             el.append(interface.to_xml())
         return el
 
+
 class Connector(Structure):
     """
     Represents a connector as a first class entity.
@@ -125,6 +128,7 @@ class Connector(Structure):
         el.append(self._interface_in.to_xml())
         el.append(self._interface_out.to_xml())
         return el
+
 
 class Interface(Structure):
     """
@@ -186,6 +190,7 @@ class Interface(Structure):
 
         return el
 
+
 class Link(Structure):
     """
     Represents a link between two interfaces in ArchStudio
@@ -227,7 +232,7 @@ class Link(Structure):
         if type(end) is Interface:
             self._end = end
         elif type(end) in (Connector, Component):
-            self._end = start.get_interface_out()
+            self._end = self._start.get_interface_out()
         else:
             logging.critical(f"Invalid end point type {type(end)}")
             exit()
@@ -262,6 +267,7 @@ class Link(Structure):
         point2.text = self._end.get_id()
 
         return el
+
 
 class Document:
     """
@@ -416,7 +422,7 @@ class Document:
 
     def write_current_contents(self):
         project_root = os.path.dirname(os.path.realpath(__file__ + "/.."))
-        output_dir = project_root + "/output/" + self.main_structure_name
+        output_dir = project_root + "/output/"
 
         logging.debug(f"Checking if output directory {output_dir} exists")
 
@@ -424,7 +430,7 @@ class Document:
             logging.debug(f"Path does not exist. Creating directory {output_dir}")
             os.mkdir(output_dir)
 
-        out_file = output_dir + "/" + self.output_file_name
+        out_file = output_dir + self.output_file_name
 
         # to_xml returns a bytes object so we open file with "write bytes" mode
         with open(out_file, "wb") as f:

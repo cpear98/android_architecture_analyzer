@@ -61,4 +61,4 @@ if __name__ == "__main__":
     file_name = doc.write_current_contents()
 
     # we wrote to the file without error so notify the user
-    print(f"{bcolors.OKGREEN}SUCCESS!{bcolors.ENDC} Output written to {bcolors.UNDERLINE}{file_name}{bcolors.ENDC}")
+    print(f"{bcolors.OKGREEN}[SUCCESS]{bcolors.ENDC} Output written to {bcolors.UNDERLINE}{file_name}{bcolors.ENDC}")
