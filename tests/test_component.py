@@ -1,9 +1,12 @@
 import unittest
+from unittest.mock import Mock
+import sys
+sys.path.append('..')
 from src.entities import Component
 
 
 class TestComponent(unittest.TestCase):
-    mock = unittest.mock.Mock()
+    mock = Mock()
 
     def test_add_interface(self):
         component = Component()
