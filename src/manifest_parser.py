@@ -136,14 +136,17 @@ class ManifestParser:
                         bus = doc.add_bus()
 
                     # create a new out-bound interface for the component
+                    logging.debug(f"Checking if link exists between {component.get_name()} and implicit message bus")
                     if doc.get_link(component, bus) is None:
+                        logging.debug("Link does not exist")
                         interface_out = Interface(direction=Interface.DIRECTION_OUT)
                         component.add_interface_out(interface_out)
                         doc.add_link(interface_out, bus)
                 else:
+                    pass
                     # we don't recognize or don't support this syntax
                     # complain about it so we can fix it or add support
-                    logging.error(f"Unsupported syntax in {file_path}: {intent}")
+                    #logging.error(f"Unsupported syntax in {file_path}: {intent}")
             return links_to_add
         else:
             # we didn't parse source code so we don't have any additional links to add later
@@ -198,6 +201,7 @@ class ManifestParser:
             # TODO: may need to handle content provider differently as it has access to a data store and serves content
             links_to_add.update(self.parse_component(doc, service, package_name, "Provider", src_dir=src_dir))
 
+        logging.debug(f"Found {len(links_to_add)} links to add ({len(links_to_add) + len(doc.get_links())} total)")
         logging.debug(f"Adding links {links_to_add}")
 
         for link in links_to_add:
@@ -221,5 +225,11 @@ class ManifestParser:
             # finally add a link from the sender to the connector, and from the connector to the receiver
             doc.add_link(sender_interface_out, connector)
             doc.add_link(connector, receiver_interface_in)
+
+        logging.debug(f"Total Components in Doc: {len(doc.get_components())}")
+        logging.debug(f"Total Connectors in Doc: {len(doc.get_connectors())}")
+        logging.debug(f"Total Links in Doc: {len(doc.get_links())}")
+        for link in doc.get_links():
+            logging.debug(str(link))
 
         return doc

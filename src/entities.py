@@ -97,8 +97,8 @@ class Connector(Structure):
         super().__init__(name, str(get_uuid()))
 
         # all connectors should have one incoming interface and one outgoing interface
-        self._interface_in = Interface(name=self._name + " Interface In", direction=Interface.DIRECTION_IN)
-        self._interface_out = Interface(name=self._name + " Interface Out", direction=Interface.DIRECTION_OUT)
+        self._interface_in = Interface(name=self._name + " Interface In", direction=Interface.DIRECTION_IN, parent=self)
+        self._interface_out = Interface(name=self._name + " Interface Out", direction=Interface.DIRECTION_OUT, parent=self)
 
     def get_interface_in(self):
         return self._interface_in
@@ -199,6 +199,21 @@ class Link(Structure):
         # end point should be an interface with direction "in"
         self._end = end
 
+    def __str__(self):
+        string = ""
+        if self._start is not None:
+            if self._start.get_parent() is not None:
+                string = self._start.get_parent().get_name()
+            else:
+                string = "Interface " + self._start.get_id()
+        string += " --> "
+        if self._end is not None:
+            if self._end.get_parent() is not None:
+                string += self._end.get_parent().get_name()
+            else:
+                string += "Interface " + self._end.get_id()
+        return string
+
     def set_start(self, start):
         if type(start) is Interface:
             self._start = start
@@ -280,6 +295,9 @@ class Document:
     def get_bus(self):
         return self._bus
 
+    def get_connectors(self):
+        return self.connectors
+
     def add_component(self, component):
         self.components.add(component)
         self.entities.add(component)
@@ -294,6 +312,12 @@ class Document:
             if name.split(".")[-1] == simple_name:
                 return component
         return None
+
+    def get_components(self):
+        return self.components
+
+    def get_links(self):
+        return self.links
 
     def add_link(self, start, end):
         # verify the start point
@@ -339,21 +363,27 @@ class Document:
             pass
 
     def get_link(self, sender, receiver):
+        logging.debug(f"Checking for link between {sender} and {receiver}")
         for link in self.links:
+            start_int = link.get_start()
+            start_comp = link.get_start_component()
+            end_int = link.get_end()
+            end_comp = link.get_end_component()
+            logging.debug(f"Checking link {start_comp if start_comp is not None else start_int} -> {end_comp if end_comp is not None else end_int}")
             match = True
             # check if sender is the same
             if type(sender) is Interface:
-                match = match and sender == link.get_start()
+                match = match and sender == start_int
             elif type(sender) in (Component, Connector):
-                match = match and sender == link.get_start_component()
+                match = match and sender == start_comp
             else:
                 match = False
 
             # check if receiver is the same
             if type(receiver) is Interface:
-                match = match and receiver == link.get_end()
+                match = match and receiver == end_int
             elif type(receiver) in (Component, Connector):
-                match = match and receiver == link.get_end_component()
+                match = match and receiver == end_comp
             else:
                 match = False
 
