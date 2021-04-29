@@ -45,6 +45,9 @@ class Component(Structure):
     def remove_interface(self, interface):
         self._interfaces.remove(interface)
 
+    def get_interfaces(self):
+        return self._interfaces
+
     def get_interface_in(self):
         # find the first interface with direction "in"
         for interface in self._interfaces:
@@ -277,10 +280,10 @@ class Document:
         # TODO: method stub
         self.output_file_name = file_name
         self.main_structure_name = structure_name
-        self.entities = set()
-        self.components = set()
-        self.connectors = set()
-        self.links = set()
+        self._entities = set()
+        self._components = set()
+        self._connectors = set()
+        self._links = set()
         self._bus = None
 
     def add_bus(self):
@@ -288,42 +291,42 @@ class Document:
         if self._bus is None:
             bus = Connector(name="Implicit Message Bus")
             self._bus = bus 
-            self.entities.add(bus)
-            self.connectors.add(bus)
+            self._entities.add(bus)
+            self._connectors.add(bus)
         return self._bus
 
     def remove_bus(self):
         bus = self._bus 
-        self.entities.remove(bus)
-        self.connectors.remove(bus)
+        self._entities.remove(bus)
+        self._connectors.remove(bus)
         self._bus = None
 
     def get_bus(self):
         return self._bus
 
     def get_connectors(self):
-        return self.connectors
+        return self._connectors
 
     def add_component(self, component):
-        self.components.add(component)
-        self.entities.add(component)
+        self._components.add(component)
+        self._entities.add(component)
 
     def add_connector(self, connector):
-        self.connectors.add(connector)
-        self.entities.add(connector)
+        self._connectors.add(connector)
+        self._entities.add(connector)
 
     def get_component_from_simple_name(self, simple_name):
-        for component in self.components:
+        for component in self._components:
             name = component.get_name()
             if name.split(".")[-1] == simple_name:
                 return component
         return None
 
     def get_components(self):
-        return self.components
+        return self._components
 
     def get_links(self):
-        return self.links
+        return self._links
 
     def add_link(self, start, end):
         # verify the start point
@@ -357,20 +360,20 @@ class Document:
             exit()
 
         link = Link(start=interface_out, end=interface_in)
-        self.entities.add(link)
-        self.links.add(link)
+        self._entities.add(link)
+        self._links.add(link)
 
     def remove_link(self, link=None, start=None, end=None):
         if link is not None:
-            self.entities.remove(link)
-            self.links.remove(link)
+            self._entities.remove(link)
+            self._links.remove(link)
         else:
             # TODO: get link using start and end points then remove it
             pass
 
     def get_link(self, sender, receiver):
         logging.debug(f"Checking for link between {sender} and {receiver}")
-        for link in self.links:
+        for link in self._links:
             start_int = link.get_start()
             start_comp = link.get_start_component()
             end_int = link.get_end()
@@ -414,7 +417,7 @@ class Document:
         body.set("structure_3_0:name", self.main_structure_name)
 
         # Add additional structure to the document
-        for entity in self.entities:
+        for entity in self._entities:
             body.append(entity.to_xml())
 
         # parse to a string, encode as utf-8 and return a bytes object
