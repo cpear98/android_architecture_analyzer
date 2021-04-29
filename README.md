@@ -49,7 +49,7 @@ The following instructions serve to document the steps required to install the A
 The Android Archicture Analyzer tool may be installed using two different methods listed below:
 
 * **Download ZIP**
-    1. Navigate to the project [Github Repository](https://github.com/cpear98/466_project) in your browser of choice
+    1. Navigate to the project [Github Repository](https://github.com/cpear98/android_architecture_analyzer) in your browser of choice
     2. Select the `Code` drop-down menu
     3. Select the `Download ZIP` option
     4. Once the file download has been completed, unzip the folder into the desired location.
@@ -57,7 +57,7 @@ The Android Archicture Analyzer tool may be installed using two different method
         * Note that this can be done using [SFTP](https://www.digitalocean.com/community/tutorials/how-to-use-sftp-to-securely-transfer-files-with-a-remote-server#:~:text=SFTP%2C%20which%20stands%20for%20SSH,but%20over%20a%20secure%20connection.) in a terminal or using an FTP tool such as [FileZilla](https://filezilla-project.org/)
 
 * **Clone Project Repository**
-    1. Navigate to the project [Github Repository](https://github.com/cpear98/466_project)
+    1. Navigate to the project [Github Repository](https://github.com/cpear98/android_architecture_analyzer)
     2. Select the `Code` drop-down menu
     3. Copy the project link using `HTTPS`
     4. Execute the command `git clone [link]` in a terminal with a CSE Server connection where `[link]` is replaced with the link copied in Step 3
@@ -65,7 +65,7 @@ The Android Archicture Analyzer tool may be installed using two different method
 Upon completing installation of the Android Architecture Analyzer tool, the project contents should appear as follows:
 
 ```bash
-├── 466_project/
+├── android_architecture_analyzer/
 │   ├── data/
 │   │   ├── simple_manifest/
 │   │   └──   └── AndroidManifest.xml
@@ -87,12 +87,12 @@ The following instructions serve to document how to install the Android Architec
 The Android Archicture Analyzer tool may be installed using two different methods listed below:
 
 * **Download ZIP**
-    1. Navigate to the project [Github Repository](https://github.com/cpear98/466_project)
+    1. Navigate to the project [Github Repository](https://github.com/cpear98/android_architecture_analyzer)
     2. Select the `Code` drop-down menu
     3. Select the `Download ZIP` option
     4. Once the file download has been completed, extract the folder into the desired location.
 * **Clone Project Repository**
-    1. Navigate to the project [Github Repository](https://github.com/cpear98/466_project)
+    1. Navigate to the project [Github Repository](https://github.com/cpear98/android_architecture_analyzer)
     2. Select the `Code` drop-down menu
     3. Copy the project link using either `HTTPS` or `SSH`
     4. Execute the command `git clone link` in a terminal where `link` is replaced with the link copied in Step 3
@@ -100,7 +100,7 @@ The Android Archicture Analyzer tool may be installed using two different method
 Upon completing installation of the Android Architecture Analyzer tool, the project contents should appear as follows:
 
 ```bash
-├── 466_project/
+├── android_architecture_analyzer/
 │   ├── data/
 │   │   ├── simple_manifest/
 │   │   └──   └── AndroidManifest.xml
@@ -126,8 +126,8 @@ To analyze an Android application's software architecture using the application'
 * For Users that followed the [CSE Server installation proces](#cse-server-installation):
     * Open a new terminal with connection to the UNL CSE Server
 
-1. Navigate to the directory that the `466_project` folder has been installed to
-    * `cd /path/to/466_project/`
+1. Navigate to the directory that the `android_architecture_analyzer` folder has been installed to
+    * `cd /path/to/android_architecture_analyzer/`
 2. Run the Android Architecture Analyzer where `path/to/AndroidManifest.xml` is replaced with the path to the manifest file for the application that should be analyzed and `name-of-arch` is replaced with the name of the desired architecture.
     * `python3 src/main.py path/to/AndroidManifest.xml name-of-arch`
     * A working example has been provided with the project. To observe the example output, execute the command
@@ -145,8 +145,8 @@ To analyze an Android application's software architecture using the application'
 * For Users that followed the [CSE Server installation proces](#cse-server-installation):
     * Open a new terminal with connection to the UNL CSE Server
 
-1. Navigate to the directory that the `466_project` folder has been installed to
-    * `cd /path/to/466_project/`
+1. Navigate to the directory that the `android_architecture_analyzer` folder has been installed to
+    * `cd /path/to/android_architecture_analyzer/`
 2. Run the Android Architecture Analyzer where `path/to/AndroidManifest.xml` is replaced with the path to the manifest file for the application that should be analyzed, `name-of-arch` is replaced with the name of the desired architecture, and `path/to/src/` is the path to the directory containing the application source code
     * `python3 src/main.py path/to/AndroidManifest.xml name-of-arch --src path/to/src/`
     * **Note:** For Users completing this process on the UNL CSE Server, it will be necessary to upload the desired application to the server. This can be done using [SFTP](https://www.digitalocean.com/community/tutorials/how-to-use-sftp-to-securely-transfer-files-with-a-remote-server#:~:text=SFTP%2C%20which%20stands%20for%20SSH,but%20over%20a%20secure%20connection.) in a terminal, using an FTP tool such as [FileZilla](https://filezilla-project.org/), or using git.
@@ -165,13 +165,12 @@ To run the unit tests for the Android Architecture Analyzer follow the instructi
 * For Users that followed the [CSE Server installation proces](#cse-server-installation):
     * Open a new terminal with connection to the UNL CSE Server
 
-1. Navigate to the directory that the `466_project` folder has been installed to
-    * `cd /path/to/466_project/`
+1. Navigate to the directory that the `android_architecture_analyzer` folder has been installed to
+    * `cd /path/to/android_architecture_analyzer/`
 2. Run the command
     * `python3 -m unittest tests.runtests`
 3. Python will run the `unittest` module and execute all test cases included in `/tests`. Upon completion, you should see a success message which includes the number of tests ran, execution time, and an end line containing `OK`.
 ***
 
 ### Known Limitations, Bugs, and Issues
-
 * The resulting xADL architecture description will not have positioning or layout information. The nodes will need to be rearranged manually to the user's needs.
