@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import Mock
 import sys
 sys.path.append('..')
-from src.entities import Component
+from src.entities import Component, Interface
 
 
 class TestComponent(unittest.TestCase):
@@ -10,27 +10,39 @@ class TestComponent(unittest.TestCase):
 
     def test_add_interface(self):
         component = Component()
-        component.add_interface(mock)
+        component.add_interface(self.mock)
 
-        self.assertEqual(component.get_interfaces()[0], mock)
-
-    def test_get_interfaces(self):
-        pass
+        self.assertTrue(self.mock in component.get_interfaces())
 
     def test_remove_interface(self):
-        pass
+        component = Component()
+        component.add_interface(self.mock)
+        
+        self.assertTrue(self.mock in component.get_interfaces())
 
-    def test_get_interface_out(self):
-        pass
+        component.remove_interface(self.mock)
+
+        self.assertFalse(self.mock in component.get_interfaces())
 
     def test_add_interface_out(self):
-        pass
+        component = Component()
+
+        self.mock.get_direction = lambda: Interface.DIRECTION_OUT
+        component.add_interface_out(self.mock)
+
+        self.assertTrue(self.mock in component.get_interfaces())
+        self.assertTrue(self.mock is component.get_interface_out())
+        self.mock.get_direction = None
 
     def test_add_interface_in(self):
-        pass
+        component = Component()
 
-    def test_to_xml(self):
-        pass
+        self.mock.get_direction = lambda: Interface.DIRECTION_IN
+        component.add_interface_in(self.mock)
+
+        self.assertTrue(self.mock in component.get_interfaces())
+        self.assertTrue(self.mock is component.get_interface_in())
+        self.mock.get_direction = None
 
 if __name__ == '__main__':
     unittest.main()

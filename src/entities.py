@@ -328,6 +328,7 @@ class Document:
     def get_links(self):
         return self._links
 
+    # TODO: automatically add components/connectors if they don't already exist
     def add_link(self, start, end):
         # verify the start point
         interface_out = None
@@ -363,13 +364,43 @@ class Document:
         self._entities.add(link)
         self._links.add(link)
 
-    def remove_link(self, link=None, start=None, end=None):
-        if link is not None:
-            self._entities.remove(link)
-            self._links.remove(link)
+        # check if we should add the endpoints
+        # don't add them if they have type Interface
+        
+        if type(start) is Component:
+            self._components.add(start)
+            self._entities.add(start) 
+        elif type(start) is Connector:
+            self._connectors.add(start)
+            self._entities.add(start) 
         else:
-            # TODO: get link using start and end points then remove it
-            pass
+            logging.critical(f"Invalid type for the start point {type(start)}")
+            exit()
+
+        
+        if type(end) is Component:
+            self._components.add(end)
+            self._entities.add(end) 
+        elif type(end) is Connector:
+            self._connectors.add(end)
+            self._entities.add(end) 
+        else:
+            logging.critical(f"Invalid type for the end point {type(end)}")
+            exit()
+        
+        return link
+
+    # TODO: fix remove link using endpoints
+    def remove_link(self, link=None, start=None, end=None):
+        if link is None:
+            if start is None or end is None:
+                logging.critical(f"Missing one of parameters link, start, or none")
+                exit()
+            
+            link = self.get_link(start, end)
+
+        self._entities.remove(link)
+        self._links.remove(link)
 
     def get_link(self, sender, receiver):
         logging.debug(f"Checking for link between {sender} and {receiver}")
