@@ -67,13 +67,23 @@ Upon completing installation of the Android Architecture Analyzer tool, the proj
 ```bash
 ├── android_architecture_analyzer/
 │   ├── data/
+│   │   ├── Blockinger/
 │   │   ├── simple_manifest/
 │   │   └──   └── AndroidManifest.xml
 │   ├── src/
+│   │   ├── __init__.py
 │   │   ├── entities.py
 │   │   ├── main.py
 │   │   └── manifest_parser.py
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── runtests.py
+│   │   ├── test_component.py
+│   │   ├── test_connector.py
+│   │   └── test_document.py
 │   ├── .gitignore
+│   ├── __init__.py
+│   ├── LICENSE.md
 └── └── README.md
 ```
 
@@ -101,13 +111,23 @@ Upon completing installation of the Android Architecture Analyzer tool, the proj
 ```bash
 ├── android_architecture_analyzer/
 │   ├── data/
+│   │   ├── Blockinger/
 │   │   ├── simple_manifest/
 │   │   └──   └── AndroidManifest.xml
 │   ├── src/
+│   │   ├── __init__.py
 │   │   ├── entities.py
 │   │   ├── main.py
 │   │   └── manifest_parser.py
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── runtests.py
+│   │   ├── test_component.py
+│   │   ├── test_connector.py
+│   │   └── test_document.py
 │   ├── .gitignore
+│   ├── __init__.py
+│   ├── LICENSE.md
 └── └── README.md
 ```
 
